@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+<title>gotailer</title>
+<script type="text/javascript" src="ansi_up.js"></script>
+<script type="text/javascript">
+
+    var wsUri = "ws://" + window.location.host + "/subscribe";
+    var output;
+
+    var ansi_up = new AnsiUp;
+
+    function init() {
+        output = document.getElementById("output");
+        testWebSocket();
+    }
+
+    function testWebSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function (evt) {
+            onOpen(evt)
+        };
+        websocket.onclose = function (evt) {
+            onClose(evt)
+        };
+        websocket.onmessage = function (evt) {
+            onMessage(evt)
+        };
+        websocket.onerror = function (evt) {
+            onError(evt)
+        };
+    }
+
+    function onOpen(evt) {
+        writeToScreen("CONNECTED");
+    }
+
+    function onClose(evt) {
+        writeToScreen("DISCONNECTED");
+    }
+
+    function onMessage(evt) {
+        writeToScreen('<span>' + ansi_up.ansi_to_html(evt.data) + '</span>');
+    }
+
+    function onError(evt) {
+        writeToScreen('<span style="color: #ff0000;">ERROR:</span> ' + evt.data);
+    }
+
+    function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.className = "line"
+        pre.innerHTML = message;
+        output.appendChild(pre);
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    window.addEventListener("load", init, false);
+
+</script>
+
+<pre id="output"></pre>
+
+<style>
+    body {
+        background-color: #eee;
+    }
+
+    .line {
+        margin: 0 1px 1px 0;
+    }
+</style>
+</html>
